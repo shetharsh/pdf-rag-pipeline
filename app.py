@@ -41,7 +41,11 @@ if prompt := st.chat_input("Ask a question about your documents..."):
         with st.spinner("Searching documents and generating response..."):
             # Call your backend RAG pipeline here
             response = process_query(prompt)
-            st.markdown(response)
+            # Change line 44 to this:
+    if isinstance(response, dict) and 'text' in response:
+        st.markdown(response['text'])
+    else:
+        st.markdown(str(response))
             
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": response})
