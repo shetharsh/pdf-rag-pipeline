@@ -43,21 +43,21 @@ if prompt := st.chat_input("Ask a question about your documents..."):
           # 4. Call your backend RAG pipeline here
             response = process_query(prompt)
     
-    # Force clean the response
-    if isinstance(response, dict):
+   # Force clean the response - handles list, dict, or plain string
+    if isinstance(response, list) and len(response) > 0:
+        clean_text = response[0].get('text', str(response))
+    elif isinstance(response, dict):
         clean_text = response.get('text', str(response))
+    elif hasattr(response, 'content'):  # AIMessage object
+        clean_text = response.content
     else:
         clean_text = str(response)
     
     # Display ONLY the clean text
     st.markdown(clean_text)
-    if isinstance(response, dict):
-        st.markdown(response.get('text', response))
-    else:
-        st.markdown(response)
             
     # Add assistant response to chat history
-    st.session_state.messages.append({"role": "assistant", "content": response})
+    st.session_state.messages.append({"role": "assistant", "content": clean_text})
 
 # --- SIDEBAR ---
 with st.sidebar:
