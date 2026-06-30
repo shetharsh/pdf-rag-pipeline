@@ -2,7 +2,7 @@ import streamlit as st
 import time
 
 # TODO: Import your actual backend function here
-from backend import process_query
+from backend import process_query, process_new_pdf
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(page_title="PDF RAG Assistant", page_icon="📄", layout="centered")
@@ -48,8 +48,28 @@ if prompt := st.chat_input("Ask a question about your documents..."):
 
 # --- SIDEBAR ---
 with st.sidebar:
+    st.header("Upload Document")
+    uploaded_file = st.file_uploader("Drop a new PDF here", type="pdf")
+    
+    if uploaded_file is not None:
+        with st.spinner("Processing your PDF..."):
+            try:
+                # Save the uploaded file temporarily
+                temp_file_path = "temp_uploaded.pdf"
+                with open(temp_file_path, "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+                
+                # Process the new file through your backend
+                process_new_pdf(temp_file_path)
+                st.success("PDF processed and ready for chat!")
+            
+            except Exception as e:
+                st.error(f"Could not process PDF: {e}")
+
+    st.divider() # Adds a nice line to separate sections
+    
     st.header("About")
-    st.write("This application uses Retrieval-Augmented Generation (RAG) to answer questions based on uploaded PDF documents.")
+    st.write("This application uses Retrieval-Augmented Generation (RAG) to answer questions based on uploaded documents.")
     st.write("**Tech Stack:**")
     st.write("- Frontend: Streamlit")
     st.write("- LLM: Gemini 1.5 Flash")

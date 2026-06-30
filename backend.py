@@ -4,6 +4,9 @@ from pinecone import Pinecone
 from langchain_pinecone import PineconeVectorStore
 from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+# ... keep your existing imports below ...
 
 # Load environment variables from your .env file
 load_dotenv()
@@ -58,7 +61,23 @@ def process_query(user_query):
     {user_query}
     """
     
+    
     # 4. Get the answer from Gemini
     response = llm.invoke(prompt)
     
-    return response.content
+    # Check if the response object has a 'content' attribute
+    if hasattr(response, 'content'):
+        return response.content
+    else:
+        return str(response)
+
+
+def process_new_pdf(file_path):
+    loader = PyPDFLoader(file_path)
+    documents = loader.load()
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    chunks = text_splitter.split_documents(documents)
+    
+    # This uses the 'vectorstore' variable already defined at the top of this file
+    vectorstore.add_documents(chunks)
+    return True
