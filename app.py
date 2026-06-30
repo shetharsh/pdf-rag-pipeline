@@ -40,12 +40,17 @@ if prompt := st.chat_input("Ask a question about your documents..."):
     with st.chat_message("assistant"):
         with st.spinner("Searching documents and generating response..."):
             # Call your backend RAG pipeline here
+          # 4. Call your backend RAG pipeline here
             response = process_query(prompt)
-           # Replace lines 44-48 with this:
-    response = process_query(prompt)
     
-    # If the response is a dictionary, try to get the 'text' key, 
-    # otherwise just print whatever comes back
+    # Force clean the response
+    if isinstance(response, dict):
+        clean_text = response.get('text', str(response))
+    else:
+        clean_text = str(response)
+    
+    # Display ONLY the clean text
+    st.markdown(clean_text)
     if isinstance(response, dict):
         st.markdown(response.get('text', response))
     else:
